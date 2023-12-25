@@ -28,6 +28,13 @@
           "functionId": "createToken",
           "region": "us-central1"
         }
+      },
+      {
+        "source": "/webhook/custom-alert-notification",
+        "function": {
+          "functionId": "customAlertNotificationWebhook",
+          "region": "us-central1"
+        }
       }
     ],
     "ignore": [
