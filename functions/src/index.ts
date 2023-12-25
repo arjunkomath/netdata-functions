@@ -1,24 +1,21 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import { getAuth } from "firebase-admin/auth";
-import { initializeApp } from "firebase-admin";
+import { onRequest } from "firebase-functions/v2/https";
+import * as admin from "firebase-admin";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+admin.initializeApp();
 
-export const createToken = onRequest(async (request, response) => {
-  initializeApp();
-  const userId = request.body.userId;
-  logger.info("Creating token for", { userId });
-  const token = await getAuth().createCustomToken(userId);
-  response.send({ token });
-});
+export const createToken = onRequest(
+  { timeoutSeconds: 1200, region: ["us-central1"] },
+  async (req, res) => {
+    if (req.method != "POST") {
+      res.status(405).send("Method Not Allowed");
+      return;
+    }
+
+    const userId = req.body.userId;
+    logger.info(`Creating token for ${userId}`);
+    const token = await getAuth().createCustomToken(userId);
+    res.status(200).send({ token });
+  }
+);
