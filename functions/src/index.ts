@@ -50,7 +50,6 @@ export const customAlertNotificationWebhook = onRequest(
       return;
     }
 
-    logger.info(`Received webhook request with api key ${apiKey}`);
     const user = await admin
       .firestore()
       .collection("users")
@@ -83,13 +82,30 @@ export const customAlertNotificationWebhook = onRequest(
     logger.info(`Sending notification to ${deviceTokens.length} devices`);
     for (const token of deviceTokens) {
       logger.info(`Sending notification to ${token}`);
-      await admin.messaging().send({
-        token,
-        notification: {
-          title,
-          body,
-        },
-      });
+      try {
+        await admin.messaging().send({
+          token,
+          notification: {
+            title,
+            body,
+          },
+        });
+      } catch (error) {
+        logger.error(`Error sending notification to ${token}`, error);
+        if (
+          (error as { code: string }).code ===
+          "messaging/registration-token-not-registered"
+        ) {
+          logger.info(`Removing invalid token ${token}`);
+          await admin
+            .firestore()
+            .collection("users")
+            .doc(user.docs[0].id)
+            .update({
+              device_tokens: admin.firestore.FieldValue.arrayRemove(token),
+            });
+        }
+      }
     }
 
     res.status(200).send({ success: true });
