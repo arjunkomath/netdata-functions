@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "netdata-ios-dev"
-  }
+    "default": "netdata-ios-dev",
+    "production": "netdata-ios-prod"
+  },
+  "targets": {},
+  "etags": {}
 }
