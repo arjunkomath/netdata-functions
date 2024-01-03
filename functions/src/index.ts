@@ -89,6 +89,13 @@ export const customAlertNotificationWebhook = onRequest(
             title,
             body,
           },
+          apns: {
+            payload: {
+              aps: {
+                sound: "default",
+              },
+            },
+          },
         });
       } catch (error) {
         logger.error(`Error sending notification to ${token}`, error);
